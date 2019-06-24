@@ -1,0 +1,157 @@
+[20F-IT-WIFI]dis cu
+#
+ version 5.20, Release 1306
+#
+ sysname 20F-IT-WIFI
+#
+ domain default enable system
+#
+ telnet server enable
+#
+ port-security enable
+#
+ mac-authentication user-name-format mac-address with-hyphen
+#
+ password-recovery enable
+#
+acl number 2100
+ description "Allow snmp clients"
+ rule 0 permit source 192.168.30.0 0.0.0.255
+ rule 1 permit source 192.168.9.0 0.0.0.255
+ rule 10 deny
+#
+vlan 1
+#
+vlan 30         
+#
+vlan 45
+#
+domain system
+ access-limit disable
+ state active
+ idle-cut disable
+ self-service-url disable
+#
+user-group system
+ group-attribute allow-guest
+#
+local-user admin
+ password cipher $c$3$6tSpAMAe2g2eYEx7+4oOmeYQlR2bO6u1cJH9qY0=
+ authorization-attribute level 3
+ service-type telnet
+ service-type web
+local-user daipeng
+ password cipher $c$3$YNcAIttSVz6icTQd0PszTgUJFletmjlNU8DV
+ authorization-attribute level 3
+ service-type telnet
+ service-type ftp
+ service-type web
+local-user hml
+ password cipher $c$3$ay9FOLDMM2sdMEPrGtHXZJRiOqCT0ZpptuH1
+ authorization-attribute level 3
+ service-type telnet
+ service-type web
+local-user liushengqiang
+ password cipher $c$3$QoZhnPX5zDtOgjrTwNXUKifLPd0NMkwrZHM=
+ authorization-attribute level 3
+ service-type telnet
+ service-type ftp
+ service-type web
+#
+wlan rrm
+ dot11b mandatory-rate 1 2
+ dot11b supported-rate 5.5 11
+ dot11g mandatory-rate 1 2 5.5 11
+ dot11g supported-rate 6 9 12 18 24 36 48 54
+#
+wlan service-template 1 clear
+ ssid H3C
+#
+wlan service-template 2 crypto
+ ssid Restricted Lane
+ cipher-suite wep104
+ wep default-key 1 wep104 pass-phrase cipher $c$3$pRNRRwYH74AB+GyPLHksiurC8hnrBRBe5+v8EZj4iCI=
+ service-template enable
+#
+cwmp
+ undo cwmp enable
+#
+interface NULL0
+#
+interface Vlan-interface1
+#
+interface Vlan-interface30
+ description "Link To 5024p-g2hub"
+ ip address 192.168.30.10 255.255.255.0
+#
+interface Vlan-interface45
+ description "Link To 5024p-g2hub"
+#
+interface GigabitEthernet1/0/1
+ description "Link To 5024p"
+ port access vlan 30
+#
+interface WLAN-BSS1
+ port access vlan 30
+ broadcast-suppression 5
+ port-security port-mode mac-authentication
+#
+interface WLAN-BSS2
+ port access vlan 30
+ port-security port-mode mac-authentication
+#
+interface WLAN-BSS30
+ port link-type hybrid
+ port hybrid vlan 1 30 45 untagged
+ port hybrid pvid vlan 30
+ broadcast-suppression 5
+#
+interface WLAN-BSS32
+ port link-type hybrid
+ port hybrid vlan 1 untagged
+ broadcast-suppression 5
+#
+interface WLAN-BSS33
+ port link-type hybrid
+ port hybrid vlan 1 30 45 untagged
+ port hybrid pvid vlan 30
+ broadcast-suppression 5
+#
+interface WLAN-Radio1/0/1
+ channel 13
+ service-template 1 interface wlan-bss 32
+ service-template 2 interface wlan-bss 30
+#
+wlan ids
+ static-blacklist mac-address 0012-f02c-68f5
+ static-blacklist mac-address 0016-6f1c-6649
+#
+ ip route-static 0.0.0.0 0.0.0.0 192.168.45.1
+ ip route-static 0.0.0.0 0.0.0.0 192.168.30.1
+#
+ info-center source default channel 2 log level warnings
+ info-center source IP channel 2 log level warnings
+ info-center source TELNET channel 2
+ info-center loghost 192.168.30.17 facility local4
+ info-center loghost 192.168.30.30 facility local4
+#
+ snmp-agent
+ snmp-agent local-engineid 800063A2033C8C404BEB80
+ snmp-agent community read mymingya
+ snmp-agent sys-info version all
+ snmp-agent target-host trap address udp-domain 192.168.9.115 udp-port 5000 params securityname mymingya
+#
+ ntp-service unicast-server 192.168.9.115
+#
+ arp-snooping enable
+#
+ load xml-configuration
+#
+ load tr069-configuration
+#
+user-interface con 0
+user-interface vty 0 4
+ authentication-mode scheme
+#
+return
+[20F-IT-WIFI]
